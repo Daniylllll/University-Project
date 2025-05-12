@@ -1,0 +1,23 @@
+<!-- templates/tests/create_test.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Test</title>
+</head>
+<body>
+    <h1>Create New Test</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Test</button>
+    </form>
+
+    <br>
+    <a href="{% url 'dashboard' %}">
+        <button type="button">← Back to Dashboard</button>
+    </a>
+
+</body>
+</html>

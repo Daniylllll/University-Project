@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            color: #333;
+        }
+        h1, h2 {
+            color: #3a3a3a;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 32px;
+        }
+        h2 {
+            color: #4CAF50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 20px;
+        }
+        li {
+            background: #fff;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        li a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        a.button:hover {
+            background-color: #45a049;
+        }
+        .form-block {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-block h2 {
+            color: #4CAF50;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input, button {
+            font-size: 14px;
+        }
+        input:focus, button:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    {% if role == 'teacher' %}
+        <h2>Your Created Tests</h2>
+        <ul>
+            {% for test in tests %}
+                <li>
+                    <strong>{{ test.name }}</strong><br>
+                    <em>Subject:</em> {{ test.subject }}<br>
+                    <em>Test Code:</em> {{ test.code }}<br>
+                    <a href="{% url 'test_detail' test.id %}">View Test</a>
+                </li>
+            {% empty %}
+                <li>You haven't created any tests yet.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'create_test' %}" class="button">Create New Test</a>
+
+    {% elif role == 'student' %}
+        <h2>Your Enrolled Tests</h2>
+        <ul>
+            {% for test in tests %}
+                <li>
+                    <strong>{{ test.name }}</strong><br>
+                    <em>Subject:</em> {{ test.subject }}<br>
+                    <a href="{% url 'test_detail' test.id %}">View Test</a>
+                </li>
+            {% empty %}
+                <li>You haven't enrolled in any tests yet.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="form-block">
+            <h2>Join Test by Code</h2>
+            <form method="POST" action="{% url 'join_test_by_code' %}">
+                {% csrf_token %}
+                <label for="test_code">Enter Test Code:</label>
+                <input type="text" id="test_code" name="test_code" required>
+                <button type="submit">Join Test</button>
+            </form>
+        </div>
+
+    {% else %}
+        <p>Invalid profile. Please log in again.</p>
+    {% endif %}
+</body>
+</html>

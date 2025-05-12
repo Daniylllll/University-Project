@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - {{ test.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fb;
+            color: #333;
+            margin: 0;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-block {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-block h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .question-block {
+            margin-bottom: 20px;
+        }
+        .question-block label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .question-block input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>{{ test.title }} - Take the Test</h1>
+
+    <form method="POST" action="{% url 'submit_test' test.id %}">
+        {% csrf_token %}
+
+        {% for question in test.questions.all %}
+            <div class="question-block">
+                <h3>{{ question.question_text }}</h3>
+
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="1"> {{ question.answer_1 }}
+                </label><br>
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="2"> {{ question.answer_2 }}
+                </label><br>
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="3"> {{ question.answer_3 }}
+                </label><br>
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="4"> {{ question.answer_4 }}
+                </label>
+            </div>
+        {% endfor %}
+
+        <button type="submit">Submit Answers</button>
+    </form>
+
+    <br>
+    <a href="{% url 'dashboard' %}" class="button">Back to Dashboard</a>
+</body>
+</html>

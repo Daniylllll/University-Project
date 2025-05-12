@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Add Question
+{% endblock %}
+
+{% block content %}
+    <h1>Add a new question for "{{ test.name }}"</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Question</button>
+    </form>
+
+    <a href="{% url 'test_detail' id=test.id %}">Back to test details</a>
+{% endblock %}
