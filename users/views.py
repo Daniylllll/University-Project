@@ -6,11 +6,7 @@ from tests.models import Test
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import TestRegistration, CustomUser
-
-import logging
-
-logger = logging.getLogger(__name__)
+from .models import TestRegistration, TestResult
 
 
 def register_view(request):
@@ -44,13 +40,20 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
-    if request.user.role == 'teacher':  # Teacher's dashboard
-        # Fetch the tests created by the teacher
-        tests = Test.objects.filter(created_by=request.user)
-        return render(request, 'dashboard.html', {'tests': tests, 'role': 'teacher'})
+    user = request.user
+    full_name = user.full_name  # Получаем полное имя пользователя
 
-    elif request.user.role == 'student':  # Student's dashboard
-        student_profile = request.user
+    if user.role == 'teacher':  # Teacher's dashboard
+        # Fetch the tests created by the teacher
+        tests = Test.objects.filter(created_by=user)
+        return render(request, 'dashboard.html', {
+            'tests': tests,
+            'role': 'teacher',
+            'full_name': full_name,
+        })
+
+    elif user.role == 'student':  # Student's dashboard
+        student_profile = user
         enrolled_tests = student_profile.tests.all()  # Тесты, на которые записан студент
 
         # Доступные тесты для присоединения через код
@@ -59,43 +62,11 @@ def dashboard_view(request):
         return render(request, 'dashboard.html', {
             'tests': enrolled_tests,
             'available_tests': available_tests,
-            'role': 'student'
+            'role': 'student',
+            'full_name': full_name,
         })
 
-    return redirect('login')  # In case of an invalid role or any other issue
-
-
-@login_required
-def take_test(request, test_id):
-    test = get_object_or_404(Test, id=test_id)
-
-    # Створюємо запис для студента, якщо його ще немає
-    if not TestRegistration.objects.filter(test=test, student=request.user).exists():
-        TestRegistration.objects.create(test=test, student=request.user)
-
-    return render(request, 'take_test.html', {'test': test})
-
-
-@login_required
-def submit_test(request, test_id):
-    test = get_object_or_404(Test, id=test_id)
-
-    if request.method == "POST":
-        score = 0
-
-        # Проходим по всем вопросам теста
-        for question in test.questions.all():
-            selected_answer = request.POST.get(f"question_{question.id}")
-            if selected_answer and int(selected_answer) == question.correct_answer:
-                score += 1
-
-        # Обновляем или создаем запись о результатах студента
-        registration, created = TestRegistration.objects.get_or_create(test=test, student=request.user)
-        registration.score = score
-        registration.save()
-
-        messages.success(request, f"You have completed the test! Your score is {score}.")
-        return redirect('test_results', test_id=test.id)
+    return redirect('login')
 
 
 @login_required
@@ -110,7 +81,6 @@ def join_test_by_code(request):
             # Проверяем, не присоединился ли студент к тесту
             if not TestRegistration.objects.filter(test=test, student=request.user).exists():
                 # Добавляем студента в тест
-                TestRegistration.objects.create(test=test, student=request.user)
                 messages.success(request, "You have successfully joined the test!")
                 return redirect('take_test', test_id=test.id)
             else:
@@ -121,3 +91,40 @@ def join_test_by_code(request):
             return redirect('dashboard')
     else:
         return redirect('dashboard')
+
+
+@login_required
+def take_test(request, test_id):
+    test = get_object_or_404(Test, id=test_id)
+    questions = test.questions.all()  # Або інше відношення
+    return render(request, 'tests/take_test.html', {
+        'test': test,
+        'questions': questions
+    })
+
+
+@login_required
+def submit_test(request, test_id):
+    test = get_object_or_404(Test, id=test_id)
+    questions = test.questions.all()
+    correct_answers = 0
+
+    for question in questions:
+        selected = request.POST.get(f"question_{question.id}")
+        if selected and int(selected) == question.correct_answer:
+            correct_answers += 1
+
+    student = request.user  # Пользователь, который сдавал тест
+
+    TestRegistration.objects.create(
+        test=test,
+        student=student,
+        score=correct_answers
+    )
+
+    context = {
+        "test": test,
+        "correct_answers": correct_answers,
+        "total_questions": questions.count()
+    }
+    return render(request, "tests/test_result.html", context)

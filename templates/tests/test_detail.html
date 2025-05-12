@@ -3,45 +3,112 @@
 {% block title %}{{ test.name }}{% endblock %}
 
 {% block content %}
-  <h1>{{ test.name }}</h1>
-  <p><strong>Lesson:</strong> {{ test.lesson }}</p>
-  <p><strong>Test Code:</strong> {{ test.code }}</p>
+  <div class="container">
+    <h1 class="my-4">{{ test.name }}</h1>
+    <p><strong>Subject:</strong> {{ test.subject }}</p>
+    <p><strong>Test Code:</strong> {{ test.code }}</p>
 
-  <h2>Questions</h2>
-  <ul>
-    {% for question in test.questions.all %}
-      <li>
-        <strong>{{ question.question_text }}</strong><br>
-        <ul>
-          <li>{{ question.answer_1 }}</li>
-          <li>{{ question.answer_2 }}</li>
-          <li>{{ question.answer_3 }}</li>
-          <li>{{ question.answer_4 }}</li>
-        </ul>
-        <p><strong>Correct answer:</strong> Answer {{ question.correct_answer }}</p>
-      </li>
-    {% empty %}
-      <li>No questions available.</li>
-    {% endfor %}
-  </ul>
+    {% if is_teacher %}
+      <!-- Display Students' Results -->
+      <h2 class="my-4">Students' Results</h2>
+      <ul class="list-group">
+        {% for registration in student_results %}
+          <li class="list-group-item d-flex justify-content-between">
+            <strong>{{ registration.student.full_name }}</strong>
+            <span>
+              {% if registration.score %}
+                Score: {{ registration.score }} / {{ test.questions.count }}
+              {% else %}
+                Not yet completed
+              {% endif %}
+            </span>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No students have completed this test yet.</li>
+        {% endfor %}
+      </ul>
 
-  <h2>Students who completed the test:</h2>
-  <ul>
-    {% for registration in test.testregistration_set.all %}
-      <li>
-        {{ registration.student.name }}
-      </li>
-    {% empty %}
-      <li>No students have completed this test yet.</li>
-    {% endfor %}
-  </ul>
+      <!-- Add New Question Form -->
+      <h2 class="my-4">Add a New Question</h2>
+      <form method="post" action="{% url 'add_question' id=test.id %}" class="border p-4 rounded shadow-sm">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+          <label for="id_question_text">Question Text</label>
+          <textarea name="question_text" id="id_question_text" class="form-control" rows="4" required></textarea>
+        </div>
 
-  <a href="{% url 'add_question' id=test.id %}">Add a new question</a>
+        <div class="form-group mb-3">
+          <label for="id_answer_1">Answer 1</label>
+          <input type="text" name="answer_1" id="id_answer_1" class="form-control" required>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_answer_2">Answer 2</label>
+          <input type="text" name="answer_2" id="id_answer_2" class="form-control" required>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_answer_3">Answer 3</label>
+          <input type="text" name="answer_3" id="id_answer_3" class="form-control" required>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_answer_4">Answer 4</label>
+          <input type="text" name="answer_4" id="id_answer_4" class="form-control" required>
+        </div>
 
-  <br><br>
-  <a href="{% url 'dashboard' %}" class="btn btn-primary">Return to Main Menu</a>
+        <div class="form-group mb-4">
+          <label for="id_correct_answer">Correct Answer</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="correct_answer" value="1" id="id_correct_answer_1" required>
+              <label class="form-check-label" for="id_correct_answer_1">Answer 1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="correct_answer" value="2" id="id_correct_answer_2">
+              <label class="form-check-label" for="id_correct_answer_2">Answer 2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="correct_answer" value="3" id="id_correct_answer_3">
+              <label class="form-check-label" for="id_correct_answer_3">Answer 3</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="correct_answer" value="4" id="id_correct_answer_4">
+              <label class="form-check-label" for="id_correct_answer_4">Answer 4</label>
+            </div>
+          </div>
+        </div>
 
-  <!-- Display the unique join code -->
-  <h3>Join the Test</h3>
-  <p>Use this code to join the test: <strong>{{ test.code }}</strong></p>
+        <button type="submit" class="btn btn-success">Add Question</button>
+      </form>
+
+      <!-- Display Existing Questions -->
+      <h3 class="my-4">Existing Questions</h3>
+      <ul class="list-group">
+        {% for question in test.questions.all %}
+          <li class="list-group-item">
+            <strong>{{ question.question_text }}</strong>
+            <ul>
+              <li>{{ question.answer_1 }}</li>
+              <li>{{ question.answer_2 }}</li>
+              <li>{{ question.answer_3 }}</li>
+              <li>{{ question.answer_4 }}</li>
+              <li><strong>Correct Answer:</strong> {{ question.correct_answer }}</li>
+            </ul>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No questions yet.</li>
+        {% endfor %}
+      </ul>
+
+    {% else %}
+      <!-- Display Student's Result -->
+      <h2 class="my-4">Your Result</h2>
+      {% if student_result %}
+        <p><strong>Your score:</strong> {{ student_result }} / {{ test.questions.count }}</p>
+      {% else %}
+        <p>You haven't completed this test yet.</p>
+      {% endif %}
+    {% endif %}
+
+    <br><br>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Return to Main Menu</a>
+  </div>
 {% endblock %}

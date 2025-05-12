@@ -33,3 +33,10 @@ class TestRegistration(models.Model):
     def __str__(self):
         return f'{self.student.full_name} - {self.test.title}'
 
+
+class TestResult(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+

@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+
+from users.models import TestRegistration, TestResult, CustomUser
 from .models import Test, Question
 from .forms import TestForm, QuestionForm
 import random
@@ -27,23 +29,35 @@ def create_test(request):
     else:
         form = TestForm()
     return render(request, 'tests/create_test.html', {'form': form})
-    # if request.method == 'POST':
-    #     test_form = TestForm(request.POST)
-    #     if test_form.is_valid():
-    #         test = test_form.save(commit=False)
-    #         test.created_by = request.user
-    #         test.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-    #         test.save()
-    #         return redirect('tests:add_questions', test_id=test.id)
-    # else:
-    #     test_form = TestForm()
-    # return render(request, 'tests/create_test.html', {'form': test_form})
 
 
-@login_required()
+@login_required
 def test_detail(request, id):
     test = get_object_or_404(Test, id=id)  # Получаем тест по ID
-    return render(request, 'tests/test_detail.html', {'test': test})
+    user = request.user
+
+    # Проверяем, является ли пользователь учителем или студентом
+    is_teacher = user.role == 'teacher'
+
+    student_result = None
+    student_results = []
+
+    # Если пользователь студент
+    if not is_teacher:
+        student_registration = TestRegistration.objects.filter(test=test, student=user).first()
+        if student_registration:
+            student_result = student_registration.score  # Результат студента
+    else:
+        # Если пользователь учитель, показываем результаты всех студентов
+        student_results = TestRegistration.objects.filter(test=test)
+
+    return render(request, 'tests/test_detail.html', {
+        'test': test,
+        'student_result': student_result,  # Для студента — его результат
+        'student_results': student_results,  # Для учителя — все результаты студентов
+        'is_teacher': is_teacher,  # Флаг для отображения информации в зависимости от роли
+    })
+
 
 
 @login_required

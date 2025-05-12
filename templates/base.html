@@ -1,22 +1,212 @@
-<!-- users/base.html -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}My Project{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Освітній портал{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --background: #f5f7fa;
+            --white: #fff;
+            --text-color: #333;
+            --card-bg: #fff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --btn-bg: #4CAF50;
+            --btn-hover-bg: #45a049;
+            --btn-text-color: #fff;
+            --form-bg: #f9f9f9;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--white);
+            border-bottom: 1px solid #ddd;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            padding: 40px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-buttons a {
+            margin-left: 20px;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-buttons a:hover {
+            background-color: var(--btn-hover-bg);
+        }
+
+        /* Дашборд */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px var(--card-shadow);
+            width: calc(33.333% - 20px);
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px var(--card-shadow);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .card p {
+            margin: 5px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--btn-bg);
+            color: var(--btn-text-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover-bg);
+        }
+
+        .create-btn {
+            margin-top: 20px;
+            background-color: #007bff;
+        }
+
+        .form-block {
+            background-color: var(--form-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px var(--card-shadow);
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        .form-block input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-block button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-block button:hover {
+            background-color: var(--btn-hover-bg);
+        }
+    </style>
+
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/">Home</a> |
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-        </nav>
-    </header>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<header>
+    <nav>
+        <div class="logo">Освітній портал</div>
+        <div class="nav-buttons">
+            <a href="{% url 'dashboard' %}">Дашборд</a>
+            <a href="{% url 'logout' %}">Вийти з акаунта</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    © {{ now|date:"Y" }} Освітній портал. Всі права захищені.
+</footer>
+
 </body>
 </html>
